@@ -1,0 +1,62 @@
+1.下载opencv3.2.0；
+2.下载contrib，https://github.com/opencv/opencv_contrib/archive/3.2.0.zip .不要下载master版本；
+3.依赖：1. sudo apt-get install build-essential
+
+       2. sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+
+       3. sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+4.
+   1、将下载好的OpenCV解压到自己的目标目录中，我提取到home目录下，为了方便重命名为opencv
+
+   2、如果要同时安装opencv_contrib的话，你需要将opencv_contrib.zip提取到opencv目录下，同时在该目录下新建一个文件夹build
+   3、进入build目录。并且执行cmake生成makefile文件
+	第一步：
+	cd opencv-3.2.0/build
+
+	第二步：
+	cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/opencv/opencv_contrib/modules/ ..
+
+	如果不安装opencv_contrib模块，则第二步的命令为：
+	cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local
+
+	其中/usr/local/opencv320是指将要install的路径，一般默认为/usr/local
+
+	其中OPENCV_EXTRA_MODULES_PATH=/home/jason/opencv_contrib-3.2.0/modules/ .. 是指opencv_contrib-3.2.0中modules所在的路径，后面的两点不可省略
+5.此过程中可能遇到的问题：
+（1）、由于网络原因，可能出现ippicv_linux_20151201.tgz（这个文件在我上传的opencv_i.zip压缩包中已经给出）无法在终端下载的情况，则可以先单独下载ippicv_linux_20151201.tgz之后，把其移动到终端所提示的路径（终端会提示该路径找不到文件），如路径/opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e/
+
+移动的时候，可以另外打开一个终端操作：
+sudo mv ippicv_linux_20151201.tgz /opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e
+
+（2）、可能在cmake过程中会出现以下三个同样原因的问题（注：下载我上面的版本的opencv_contrib由于我已经修改好了，所以不会出现这个问题）
+
+出现上述类似问题的解决方法是将显示的错误信息的对应文件的对应位置中的FILENAME修改成PACKAGE即可。
+
+3、make和install
+
+在cmake成功之后，就可以在build文件下make了。
+
+[plain] view plain copy
+
+    第1步：  
+    sudo make  
+      
+    第2步：  
+    sudo make install  
+
+
+make时可能出现的问题：
+
+（1）、会提示少一些文件，目前发现这些文件都是在opencv_contrib/modules/xfeatures2d/src文件夹下缺少的，是由于在cmake是没有下载好。可能是因为服务器不在国内的原因。（我上传的opencv_contrib.zip压缩包也已经把这些文件添加进去了）。
+
+只需要把相应的文件复制到opencv/opencv_contrib/modules/xfeatures2d/src文件夹下即可。
+
+（2）、如果是先安装好的opencv3.2，然后在编译添加opencv_contrib时会出现一个Bug。如下：
+
+cuda.hpp这个文件在相应的文件夹下寻找是肯定存在的，当初我出现这个问题的时候找了好多方法，都解决不了，最后还是删了以前先安装好的opencv然后重新把opencv和opencv_contrib同时编译安装，才没有这个问题的。所以我才在最开始建议大家opencv和opencv_contrib同时编译安装。目前我并没有找到有效的方法解决这个问题（我的问题是没解决），所以只能把我找的方法给大家贴上来，大家自己尝试以下，如果总是不成功，还是建议大家删了以前的opencv，重新把opencv和opencv_contrib同时编译安装。
+
+方法：http://code.opencv.org/issues/4140
+
+至此我们的opencv和opencv_contrib就编译安装完成了。一定要记着sudo make install 否则会出现自己的程序在编译时提示：error：为声明的定义
+
+下面给大家一个例程，可以验证自己的opencv和opencv_contrib是否安装成功。

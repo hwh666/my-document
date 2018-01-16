@@ -1,0 +1,286 @@
+﻿1.X,Y,Z坐标系由右手定则确定;
+2.局部坐标系的选取以与全局坐标系一致(无旋转)为佳;
+3.姿态表示法:XYZ固定角坐标系(坐标系B绕固定参考坐标系A的轴旋转,先绕XA轴转,再绕YA轴转,最后绕ZA轴转).ZYX欧拉角(坐标系B绕自身旋转,先绕ZB轴转,再绕YB轴转,最后绕XB轴转),如果旋转角度相同,最后得到的等价旋转矩阵是一致的.R(xyz)=R(z)R(y)R(x),先乘R(z),再乘R(y),最后乘R(x).
+4.叉积的求解:三维矢量W的叉积即是取得W的斜对称矩阵
+5.ssh的安装：在服务器网址上，点击profile setting，进入SSH Keys，按照指引安装后，还需将本地电脑的含有.git的文件夹中的.git文件夹打开，将config文件理的url = git@18.0.2.146:xinwang/zmp_walk.git用ssh网址代替。ssh安装后可以不用运行git时输入用户名和密码。
+6.git安装好后，做以下配置，可以在GIT中显示branch名词，只需在home的.bashrc中修改：
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[00;32m\]$(__git_ps1 " (%s)")\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1 " (%s)")\$ '
+7.ODE里面的drwastuff的安装，首先在安装ODE时应在configure命令时将drawstuff和double precesion带上;然后安装好后还需
+sudo cp -r include/drawstuff /usr/local/include/
+sudo cp drawstuff/src/.libs/libdrawstuff.* /usr/local/lib
+sudo ldconfig
+8..run后缀文件的安装：进入.run文件所在的路径，然后chmod+x XXX.run， 然后sudo ./XXX.run。
+9.iso文件的安装：iso的挂载，mount -o loop/iso路径 cdrom路径，然后直接进cdrom运行./install文件即可
+10.eigen下复制三个文件到eigen3，分别是Eigen，unsurport，signature_of_eigen3_matrix_library
+11.git的git stash后，可先进行与其他branch的merge，然后再使用git stash apply.
+12.git下的顺序：先master下clone/pull orgin master，然后zhanbo下merge master，然后在push origin zhanbo。
+13.cosh(z)=(ez+e-z)/2,sinh(z)=(ez+e-z)/2;
+14.git log 后按”q”退出；
+15.如果git merge有conflict，需要限cat查看conflict内容，然后手动修改冲突地方才可；如果想取消此次的git merge，可以用git merge –abort.
+16.对于步行足的调整：在线性倒立摆中，如果要连接两个倒立摆，可采用调整足的切换时间（用于二维倒立摆），或者是调整落足点（用于三维倒立摆，因为有两个维度，x和y，难以找到同时满足的切换时间；还需保持切换步长步距不变，支撑时间不变）。对于三维线性倒立摆的第n个步行周期来说，前一个周期的出轨位置和速度，保持步长步距不变，应用倒立摆公式x..=g/zc*x，可以计算出支撑时间Tsup后的第n个周期的出轨速度和位置。同时，单独考虑第n步这一个步行单元，不管上一个周期的入轨速度，同样利用倒立摆公式x..=g/zc*x，可以计算出来一个出轨速度和位置。这两个出轨速度和位置应该尽可能接近，从而来调整落足点。实际本质上就是根据第n个周期的入轨速度和位置，找出满足倒立摆公式的第n步的落脚点。
+17.落足点调整中计算时用的入轨和出轨速度为相对于落足点的local速度；
+18.footplacement程序中的全局坐标（x,y）都是相对于出发点的机体的几何中心位置的，z是地面0;
+19.在ubuntu中运行c++程序，首先进入对应工程文件夹的build文件夹，运行cmake ../.，表示为上一级文件夹（包含cmakelists.txt）配置产生CMakeFiles文件夹，以指导后续的编译。然后运行make(只有有了cmakefiles文件夹，运行make才有用)进行编译，之后将在子目录bin中生成一个无后缀的链接好的可执行程序，最后通过./加上该可执行程序，即可运行该程序。如果是要运行下载软件的源码包，那么一般源码目录里面有一个configure脚本，用来配置后续要进行的编译过程，通过sudo ./configure，它会自动检测软件的编译环境和依赖关系，并且生成“Makefile”文件。之后的编译及运行过程与运行c++程序相同。
+20.写程序大体步骤为：1.用编辑器编写源代码，如.c文件。2.用编译器编译代码生成目标文件，如.o。3.用链接器连接目标代码生成可执行文件，如.exe。但如果源文件太多，一个一个编译时就会特别麻烦，于是人们想到，为什么不设计一种类似批处理的程序，来批处理编译源文件呢，于是就有了make工具，它是一个自动化编译工具，你可以使用一条命令实现完全编译。但是你需要编写一个规则文件，make依据它来批处理编译，这个文件就是makefile，所以编写makefile文件也是一个程序员所必备的技能。对于一个大工程，编写makefile实在是件复杂的事，于是人们又想，为什么不设计一个工具，读入所有源文件之后，自动生成makefile呢，于是就出现了cmake工具，它能够输出各种各样的makefile或者project文件,从而帮助程序员减轻负担。但是随之而来也就是编写cmakelist文件，它是cmake所依据的规则。
+20(2).CMake是一个跨平台的软件，在很多平台可以使用。一般在windows下，我们会直接使用VS生成项目，在Linux下面，我们也可以使用QT Creater生成项目，但是两个不同平台上面的项目不能相互移植。这就有了CMake的用武之地，我们可以先编写一个CMakeLists.txt文件，将需要的.h和.cpp文件包含进来，然后在不同的平台使用CMake调用各自的编译器生成各自的工程。
+21.《仿人机器人》18页式2.4说的是r和r‘的关系,不是局部坐标系和全局坐标系的关系。
+22.linux系统自带的c++的debug工具是GDB,可以直接在linux的terminal中运行；
+23.GCC的debug一些知识：
+（1）Thread是线程，一个程序是一个进程，一个进程里可以有多个线程。增加线程需要额外的命令，因此我们的程序一般只有一个线程，就是main函数所在的程序。
+（2）stack是堆栈，堆栈内会存储当前程序运行的相关数据，通过堆栈可以知道当前程序具体运行到了哪一个位置。
+（3）breakpoint，通过breakpoint edit可以设置断点的conditon（条件，当该条件满足时，断点才动作）；ignore count（可以设置断点次数达到多少，断点才动作）；commands(命令，设置断点动作时的附加动作，如输出某个值等)；
+（4）breakpoint可以通过“enable”和“disable”来设置是否起作用，而不用删除；
+（5）step into(F11，单步进入)表示单步执行，遇到函数会进入函数；step over(F10，单步跳跃)也是单步执行，但遇到函数会把函数作为一个步执行，不会进入函数；step out(shift+F11，单步跳出)，当执行到子函数内时，使用step out可以执行完子函数余下部分，并返回上一层函数;run to line是运行到当前光标处。
+24.sogou输入法的安装：首先将在系统设置里的language support 里面将input method system 从默认的ibus改为fcitx，如果没有可以从网上下载，并且要update；然后在sogou官网上下载sogou输入法并安装；最后打开fcitx界面（fcitx-config-gtk3命令），点击对话框左下角的（+）按钮，取消Only Show Current Language（很重要，否则不能找到刚安装过的搜狗输入法!），选中点击OK即可；
+25.下载安装terminator工具，可以用于把terminal在周末进行重新布置；
+26.alt+ctrl+f1~f6按键可进入字符界面，alt+ctrl+f7进入图形界面；
+27.sudo su <user>可以切换用户，如果省略user，将切换至root权限；
+28.$ cd ~/catkin_ws
+   $ catkin_make命令相当于：
+   $ cd ~/catkin_ws
+   $ cd src
+   $ catkin_init_workspace
+   $ cd ..
+   $ mkdir build
+   $ cd build
+   $ cmake ../src -DCMAKE_INSTALL_PREFIX=../install-     DCATKIN_DEVEL_PREFIX=../devel
+   $ make
+29.非devel是可执行文件的集合。例如普通用户程序，安装后就能运行。devel包是头文件 库等开发文件的集合。比如编译安装依赖某个程序 那么你需要同时安装devel才能解决依赖问题。
+30.VIM命令：
+     :i 直接按i即可进入输入模式；esc退出输入模式，shift加分号：进入命令输入模式；
+     :w   保存文件但不退出vi
+     :w file 将修改另外保存到file中，不退出vi
+     :w!   强制保存，不推出vi
+     :wq  保存文件并退出vi
+     :wq! 强制保存文件，并退出vi
+     :q  不保存文件，退出vi
+     :q! 不保存文件，强制退出vi
+     :e! 放弃所有修改，从上次保存文件开始再编辑
+31.linux下根目录“/”,“～”是home目录，显示当前目录是pwd，添加user用useradd，密码passwd，删除userdel. 以上命令需sudo 权限。用户切换sudo su user。
+32.链接qt和ros的插件下载地址https://github.com/ros-industrial/ros_qtc_plugin/wiki;
+33.如source了ros工作空间中的devel文件夹下的setup.bash不起作用，可尝试删除工作空间中的devel和build文件夹，重新catkin_make，然后再source devel下的setup.bash即可；
+34.ubuntu下删除文件可用sudo apt-get purge或者autoremove（比较彻底）；
+35.ros中配置使得可执行文件生成在devel下面：cmakelist中添加：find_package(message_generation
+)，catkin_package(
+CATKIN_DEPENDS message_runtime
+)，add_dependencies(target名称 ${catkin_EXPORTED_TARGETS})，在package.xml中添加：  <build_depend>message_generation</build_depend>，  <run_depend>message_runtime</run_depend>。
+36.当qt和ros连接后，在qt中进行ros项目debug的方法：在qt中以导入ros项目的方式打开ros项目，在project的“build&run”中选择”debug”模式，在build标签中，选择ros manager，在build steps和clean steps都选择catkin_make（并确保catkin_make -DCMAKE_BUILD_TYPE=Debug all），在run标签中，在run configuration中，选择ros run configuration，并添加不需进行调试的launch和可执行文件；对于需要进行调试的文件，在run configuration中选择“add‘，添加custom executable，并在下面选择需要调试的可执行文件，并选择run in terminal。完成以上步骤后，如需进行调试，只需同时启动不需调试的launch文件和可执行文件，并用debug模式启动需调试的可执行文件即可。
+37.error while loading shared libraries: libiconv.so.2: cannot open shared object file: No such file or directory 解决方案：1.這時候就可以找出函式庫位置，例如：
+/usr/local/lib/libiconv.so ;2.如果我們有 root 權限的話，可以把函式庫所在路徑入/etc/ld.so.conf，再重新產生 ld 的 cache 即可，如下：# echo "/usr/local/lib" >> /etc/ld.so.conf # 注意! 要用 >> 而非 >！ # ldconfig 。在某些系統中，/etc/ld.so.conf可能會預設加上include /etc/ld.so.conf.d/*.conf 這樣的敘述，那們我們也可以把路徑放在那個目錄下：# echo "/usr/local/lib" >> /etc/ld.so.conf.d/usr_local_lib.conf # ldconfig 。這樣一來就可以讓程式順利搜尋到需要的 library 囉。
+38.orocos_kdl和kdl_parser的下载安装：ros从hydro版本开始就只支持orocos_kdl而不是kdl了，可以从ros源上或者github上下载安装都可以。kdl_parser应该从ros源上下载安装，不应从github上下载安装，否则无法进入ros工作空间及编译。
+39.rosdep与rosmake：rosdep和rosmake都是针对ros工作包里面的依赖项的，ros的大部分工作包都有一些依赖项，rosdep install package_name可以自动安装package对应的依赖项，rosmake package_name可以自动把package对应的依赖项目预先进行编译，这样编译工作包的时候它的依赖项就已经编译好了，编译时就不会出现找不到依赖的问题了。
+40.变换矩阵的左乘和右乘的运动解释是不同的，变换顺序“从右至左”表示运动是相对固定坐标系而言的；变换顺序“从左至右”表示运动是相对运动坐标而言的。
+41.关于const限定符：1.在传引用的函数中，如void f(vector3d &x)中，由于函数在调用过程中不复制产生临时对象，而是直接作用于参数x，因此有可能改变参数x，因此可以加上const修饰符，即void f(const vector3d &x)；2.对于用const修饰指针传递的函数的返回值，如 const char *GetString(void),那么这个函数只能返回给const char*类型的变量，如const char *str=GetStr()；并且const修饰的指针类型，该指针不能改变，但指针指向的对象（改指针地址里面的值）是可以改变的；3.在类中声明的const成员函数，不能修改类的数据成员；4.引用作为函数返回值，最大好处是在内存中不产生被返回值的副本，但返回的必须是全局变量，局部变量会被销毁，无法返回引用。
+42.某些没有install命令的软件：部分软件只有编译make，没有install命令，这样导致文件无法安装到系统目录下，在qt中include<###>时无法找到，需要手动安装。方法是将编译生成的bin里面的静态库或动态库文件（以.so或.a结尾）拷贝的usr/local/lib下面；将编译生成的include里面的文件（包括.hpp文件）拷贝到usr/local/include下面。
+*********-------------------2016.12.3~5日培训笔记（起）----------------------*****
+1.rosbag回放；
+2.ros命令：which find
+3.后台运行命令+&；
+4.jobs显示当前任务；
+5.ctrl + 或-来放大或缩小terminal的字体；
+6.tpic用TCP协议，service用udp协议；
+7.headers:seq;
+8.include是编译生成的中间文件（编译完成的文件.o），devel生成可执行文件(编译后并链接好的可执行文件)，catkin_make install生成install文件（把devel中生成的文件安装到指定位置）；
+9.一般来说install里面的文件与devel里面的文件是基本一样的，因此也可以source install下面的setup.bash。这样rosrun的时候调用的就是install下面的可执行文件。如果source的是devel下面的setup.bash，rosrun运行的就是devel下面的可执行文件。
+10.tree命令可看到文件目录；
+11.“licensse<TODO>lisence”表示未添加；
+12.ros-indigo-joystick-drivers
+13.sudo gpasswd --add exbot dialout;
+14.外接设备：接上外设，查看dev下是否有新的外设，下载安装对应外设的ros库，然后读取数据即可；
+15.ardunio编程与ros连接：dev下面显示的是ttyACM*;
+16.ls /dev/ttyUSB*
+17.ros里面的spin（）是轮循的意思，spin()里面是个死循环，一直等到收到信息，然后执行回调函数；
+18.roslaunch里面可以用remap来实现不同名称的topic的关联；
+19.roslaunch里面的node name可以任意输入；
+20.roslog中，三种标准：stdin,stdout,stderr；还有rosout;
+21.日志记录的五个级别：fatal，致命错误，完全无法运行；error，错误，但可以运行，可正常退出；warn,info,debug;
+22.可以使用ros_debug（“hello”等）,ros_debug_stream（“”）来在程序中输出debug信息；ros_debug_cond（condition）来输出带条件的信息；
+23.日志里面的信息可以在程序中通过语句，或者是修改cmakelist使某些级别的日志不编译；
+24.gdb调试：编译时要加上-g选项，这样编译出来额可执行代码中才包含调试信息，使得每条可执行代码对应于某条源码的信息保留；且不能使用-o2选项对代码进行优化；可在cmakelist中调整；
+25.如果在qt等环境中遇到内核的错误,可以在gdb中调试显示；
+26.roswtf显示系统环境；
+27.rosbag play xx.bag可以虚拟运行一个节点，把后台的数据在播放出来；
+28.ros中用四原数来表示姿态，x,y,z,w；
+29.map是世界固定坐标的原点，odom是里程计推算出来的世界坐标系原点，map和odom的差别取决于轮子是否打滑；
+30.dijkstra和A*算法；D*算法；DWA算法；
+31.launch里：<group ns="namespace1">可添加namespace，<node pkg="turtlesim" name="turtlesim_node234" type="turtlesim_node"/></group>；node pkg是指node所在的package，type是指node生成的可执行文件的名称，name是可以自己取的名称，是给该node取的一个名字，可以与node名称不同；
+32.amcl已知图找机器人的位置，slam既不知道图也不知道机器人目前的位置，然后同时进行定位和建图；
+33.SLAM目前的比较好的算法：ICP算法，拼接算法，加闭环检测和闭环优化（优化问题）；叫图优化，是凸优化的一种；
+34.ssh安装：sudo apt-get install openssh-server，然后sudo /etc/init.d/ssh start ,查找本机信息ifconfig;然后用ssh -l +目标电脑名 +目标电脑IP地址；输入密码，即可；
+35.语音识别：三个阶段，命令词，听写，转写；语音合成； 
+36.linux下语音管理软件，自带，alsa;过程：调用alsa（read是读取声卡数据，拿到声音；write是发送数据到声卡，播放语音）,识别开始vad,或wakeup，然后进行识别(命令词asr)，或iat(需要进行语义识别与分析，再进行回答，调用tts)，最后进行动作；iat部分是实现语音到语句部分，可使用深度学习算法；
+37.remap用于topic的映射,<remap from="/talker" to="/re_talker" />，实现将一个topic映射到另一个名字上去；
+38.科大讯飞sdk；
+39.orb_slam,ORB_SLAM,Rat_SLAM,EtherCAT;
+*********-----------------2016.12.3~5日培训笔记(终)-----------------------*****
+43.某些时候复制到系统目录下的文件在编译是显示permission denied，这是因为直接拷贝到系统目录下的文件会默认无法读写，因此要添加读权限，且该权限应添加给目录及目录下文件，可使用chmod +R 命令；
+44.关于cmakelist中的target_link_libraries，这里面应包含程序所要依赖的静态库（.a文件）或动态库（.so文件），只需要包含该库的名称即可（如kdl即表示libkdl.so），而对于不是库的文件，如源码下载的文件，则不需要包含到这里面来，只需要在include中包含即可； 
+45.关于c++中的include<>，一般默认是从usr/local/include中开始找，然后到usr/include中找，并且include<>中应该写include目录下的包的名字，不能写它的下级目录的包的名字；
+46.位置控制：刚度大，因此要在此基础上添加力闭环，来增加一定的柔性；力控制：全身力控，全身力分配，可以减少内部力，增加柔顺度，需要增加位置闭环；
+47.线性倒立摆，弹簧负载倒立摆；
+48.COP(center of pressure),ZMP(zero-moment point)，capture point,capture region;
+49.从solidworks到urdf中，导出的各个关节的rpy角度，不能直接使用，gazebo在导入urdf模型时，会将当前的各关节角度作为初始的零位置（rpy角度为零的位置）；
+50.在gazebo中调试大狗各个关节的pid参数时，可通过观察rqt_plot中的各个关节的setpoint和process_value以及error来调整pid；
+51.在gazebo中，用到urdf中的damping参数时，应该调整好仿真步长，否则可能因为仿真步长太大而出现阻尼的正反馈；
+52.在启动rqt时，有时候提醒不能显示某个msg，这是因为没有source该package，或者是该msg的类型没有包含在头文件中（往往是因为project名称写错了）；有时候即使该package已经在source中了，但仍然需要重新手动source才可用，并且只能在进行source操作的terminator中运行rqt,在其他terminator中运行rqt也不管用；
+53.在ros中，有时候出现多个同名的工作包，这时使用roslaunch或者rosrun的时候，就可能出现加载了不正确的工作包的现象，这时可以用roscd该工作包看看，目前系统中搜寻到的是那个工作包，然后在ROS_PACKAGE_PATH中把该包的地址去除（去不掉就换个文件名即可）；ros在搜索工作包是是从ROS_PACKAGE_PATH中从头到尾挨个搜索的，直到找到该工作包为止；
+54.linux任务调度：实现自动某一时间做某一件事情，使用crontab -e来设置，格式：日期（5个*）+任务;
+55.终端中进入root用户使用su命令，输入密码即可；
+56.在建立ROS工作包时，即使是采用catkin_create_pkg命令生成，其自动产生的cmakelist仍然需要修改，添加如inlcude directory/target_link_libraries等，否则会出现undefined reference to等问题；
+57.Math:Matrix3d的元素格式为n(x,y),代表第x行y列;
+58.RBDL中，movable joints和fixed joints的编号以fixed_body_discriminator为分界线，其中1~discriminator是movable joints，discriminator到max是fixed joints，一般max是4294967294，discriminator是max的一半，为2147483646;
+59.姿态的欧拉角的表示是相对于动坐标的（也就是旋转物体的自身坐标，右乘），姿态的rpy角表示是相对于基坐标系的（也就是固定的坐标系，左乘）；欧拉角表示有12种表示方法；
+60.显示网络程序情况netstat –anp可看程序名/端口号等；
+61.多数的linux都是用一种叫System V的机制来启动运行级别，而ubuntu是用的另一种机制叫startup.所以没有那个inittab文件改默认运行级别。默认运行级别文件是这个/etc/init/rc-sysinit.conf的14行；
+62.ln -s 源文件 目标代号,可以为源文件建立符号连接，相当于快捷方式；
+63.grep只能在文本中查找内容；find是搜索目录或文件，可按大小或一段时间内被存取/变更的文件来查找；
+64.在urdf中，每个body有自己的原点（origin）和参考坐标(frame)，原点是在它的几何中心处，而参考坐标是由连接到它上面的joint的origin决定的，也就是joint的origin。比如一个两个body（base_body和leg）加一个joint的物体，base_link的原点是它的几何中心，然后joint的origin决定了leg的参考坐标（frame），而leg的位置取决于它的质心相对于它的参考坐标frame的位置（也就是leg的origi,是在visual中定义的）；
+65.在RBDL中，CalcBodyToBaseCoordinates（）函数代表计算某个body中的一个点（有在该body坐标下的位置）在基坐标（root）的位置；CalcBodyWorldOrientation()函数是计算某个body的坐标相对于基坐标（root）的旋转矩阵；
+66.平移变换只能乘在最左边；
+67.多个变换的连乘（也就是左乘）必须是基于动坐标的，因为只有动坐标是从左往右乘的；
+68.在git中，使用git clone从远端服务器克隆时，克隆下来的branch默认显示只有master（此处存疑），可以再使用git fetch确保把所有分支都克隆下来了；
+69.当在当前的branch上新建一个new branch时，新的new branch会复制当前branch的最近一次commit的内容，因此在新建分支前应该把当前的分支先commit；
+70.复制一个新的工程并在qt中打开，编译时有时会一开始就遇到问题，可试着删除build中和devel中的文件，然后在project选项中的“Build”中点击Update，然后再试；
+71.QT在ROS中使用的参考网址http://blog.csdn.net/u013453604/article/details/52186375；https://github.com/ros-industrial/ros_qtc_plugin/wiki；
+72.查看系统进程命令ps -e;具体查看某个进程可用ps -e|grep+进程名称；
+73.后缀为.deb的程序的安装命令为sudo dpkg -i +文件名称；
+74.linux下lantern的下载地址https://github.com/getlantern/lantern；
+75.在使用QP时，对于example(nv,nc),nc代表限制的个数，这个个数应该是lbA和ubA中的上下限的个数，而不是看成总数为1个；
+76.论文查找：ieee xplore；
+77.矩阵A的2范数为|A|*A的特征值的绝对值的最大值，而向量A的2范数为向量各个元素的绝对值的平方和再开方，所以向量A的2范数的平方等于A转置*A，常用于QP计算中；
+78.RBDL的网址https://rbdl.bitbucket.io/index.html；
+79.c/c++中static关键字的作用：1.隐藏，全局变量和函数具有全局可见性（加上关键字extern即可），而加了static的变量和函数则只在其定义的作用域内可见（如在一个函数内定义了static变量），而在作用域外是隐藏的。函数前面加了static就只能在被声明的模块内使用；2.保持变量内容持久，加了static后，变量就储存在静态存储区（与全局变量一样），如定义在一个函数中，那么下次再进入这个函数时，static变量就还保留着之前的值（并且会略过初始化语句）；3.static变量会默认初始化为0;4.可以在c++的类中声明静态变量和静态函数；
+80.ROS中的ros::spin()和ros::spinOnce()都叫ROS消息回调处理函数，它俩通常出现在ROS的主循环中，程序需要不断调用ros::spin()或ros::spinOnce()，两者的区别在于前者调用后不再返回，也就是程序执行到这里后就不再往下执行了，而后者在调用后还可以继续执行之后的程序。ROS后台的机制是要到ros::spin()或ros::spinOnce()时候，才会去处理前期接收到的订阅的消息，因此如果程序中写了相关的消息订阅函数，那就必须要有ros::spin()或ros::spinOnce()函数，否则永远也得不到另一边发来的消息或者数据。总体来说其原理是这样的：除了用户的主程序以外，ROS的socket连接控制进程会在后台接收订阅的消息，所有接收到的消息并不是立即处理，而是等到spin()或者spinOnce()执行时才集中处理。所以为了保证消息可以正常接收，需要尤其注意spinOnce()函数的使用 (对于spin()来说则不涉及太多的人为因素)。I. 对于速度较快的消息，需要注意合理控制消息队列及spinOnce()的时间。例如，如果消息到达的频率是100Hz，而spinOnce()的执行频率是10Hz，那么就要至少保证消息队列中预留的大小大于10。II. 如果对于用户自己的周期性任务，最好和spinOnce()并列调用。即使该任务是周期性的对于数据进行处理，例如对接收到的IMU数据进行Kalman滤波，也不建议直接放在回调函数中：因为存在通信接收的不确定性，不能保证该回调执行在时间上的稳定性。
+81.spinOnce使得pub/sub为非阻塞锁（不会停留在spinOnce处不停循环，而是会往下执行），spin是客户端的, 因此是阻塞的；这样就很好理解talker要用SpinOnce,有需要talk的时候发出,没有的时候不发送.而listener一直在阻塞着听。
+82.在ROS中新建一个项目的三个步骤：1,先新建文件夹及src，然后在src里面catkin_init_workspace,会在src里面产生CMakeLists.txt文件；2，进入src的上层文件夹，运行catkin_make,产生build和devel文件夹;3，在src文件夹里面，运行catkin_create_pkg 文件夹名 + 依赖项 ，产生功能包；
+83.ROS中可以使用boost::thread来新建thread，在一个node里面可以新建很多个thread；但这些thread要考虑互斥的问题；
+84.在git中如果merge时有冲突conflicts，那么可用git diff查看具体冲突，然后打开对应文件处理conflict后再重新merge；
+85.git中如果本地分支与远程分支不同，需要建立一个本地分支(dev)并同步到远程分支(origin/dev)，可用使用git checkout -b dev origin/dev；
+86.Arm采用与X86不同的总线技术，X86采用PCI总线技术，ARM采用的是片上总线AMBA总线技术。AMBA（高级微控制器总线结构）最初包含：ASB(系统总线)和APB（外设总线），后提出AHB（高性能总线），AHB比ASB有更高的数据吞吐量，不同于ASB的双向总线设计，是基于集中多总线机制，可以自高时钟下运行并且具备64位和128位​宽度的总线；
+87.在对EIGEN中的矩阵等使用setzero()和setOnes()时，括号里面必须指明行数和列数，如setzero(4,5),否则会出现未知错误,特别是setOnes()；
+88.不同坐标间力和力矩的变换与微分位移（速度）和微分旋转（角速度）的变换是对应的，采用虚功法可以计算，具体见《机器人学》p111；
+89.在编译文件时，在build文件夹中进行cmake的好处是，可以把cmake产生的中间文件生成到build文件夹中，与源代码分开，这样要发布源代码时，只需要把build文件夹删除掉就行了。
+90.库的使用，在c++工程中，只有含有main函数的文件才会生成为可执行程序，其他的文件只能生成为库，供可执行程序调用。一个库往往是许多算法/程序的集合，分为静态库（以.a结尾）和共享库（以.so结尾），
+差别在于静态库每次调用都会生成一个副本，而共享库只有一个副本，更省空间。生成库只需要在CmakeLists中添加：add_library(库名  文件名)，生成共享库为add_library(库名  SHARED 文件名)。库文件是一个压缩包，是二进制文件，如果要使用库，还需要添加一个头文件(.h)，说明库里面都有什么，对于库的使用者而言，只要拿到了头文件和库文件，就可以调用这个库了。调用库的时候需要在CmakeLists中添加：target_link_libraries(工程名 库名)。
+91.表示物体在空间中的旋转（不包括平移变换）有多种方法,如旋转矩阵，欧拉角（常用的是RPY角），旋转向量（轴+角度），四元素法 ,它们之间可相互变换；切记，四元素表示的也只是旋转，不包含平移变换。
+92.使用Eigen时，两个矩阵相乘得到一个数，这个数会表示成一个数的矩阵，因此不能直接赋给double数，应该像使用矩阵一样，通过取值(0,0)得到；
+93.在进行新狗调试时，首先要确定urdf里的描述是准确的。特别是摩擦系数friction，确保狗放在地上不会弹飞。然后要确保环境是准确的，如摩擦系数等；
+94.在进行MPC算法调试时，有时同样的参数在matlab里面不发散，但在c程序里面QP运算会发散，不知问题在哪里？
+95.linux中要删除原来添加的软件源可以用sudo add-apt-repository –remove 源名称（如:ppa:beineri/opt-qt57-trusty）;
+96.update是更新软件列表，upgrade是更新软件。
+97.库如果是以源码的形式下载下来编译后，在sudo make install后才会在系统目录中生产库，并安装好头文件，这样在程序中才能以包含库和头文件的形式来引用该库；
+98.eigen在安装好后会安装到usr/include/eigen3或者是usr/local/include/eigen3,需要根据不同的安装路径修改qt项目中的cmakelist中的set(Eigen_INCLUDE_DIRS 安装位置)；
+99.openCV在安装时需要先手动下载ippicv_linux_20151201.tgz，并把它放到opencv-3.1.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e下面；并且要安装所有的依赖项sudo apt-get build-dep opencv
+100.在安装opencv时，如果在编译阶段有出现sys/videoio NOT FOUND，没有关系，不用理他，不会影响后续的编译和安装。
+101.在安装opencv 3.2的库后，如果要使用它，需要在CMakeLists中添加：1.find_package(OpenCV 3.2 REQUIRED)，这样可以实现：如果编译软件使用了外部库，事先并不知道它的头文件和链接库的位置。得在编译命令中加上包含它们的查找路径。CMake使用 find_package 命令来解决这个问题，只要找到包，就会定义下面这些变量：
+<NAME>_FOUND
+<NAME>_INCLUDE_DIRS or <NAME>_INCLUDES
+<NAME>_LIBRARIES or <NAME>_LIBRARIES or <NAME>_LIBS
+<NAME>_DEFINITIONS
+2.include_directories(${OPENCV_INCLUDE_DIRS})，如果上面的findpackage找到了包，就会定义<NAME>_INCLUDE_DIRS,因此不需要人为指定OPENCV_INCLUDE_DIRS的位置；3. target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})也不需要人为指定具体的位置。
+102.在一个工程的src中如果有多个.cpp和.h，那么CmakeLists中的add_executable应该这样写 add_executable(${PROJECT_NAME} ${folder_source})，而不能写成 add_executable(${PROJECT_NAME} main.cpp)，否则在链接的时候会出现undefined reference错误，因为这样会导致除main.cpp外的其他.cpp和.h文件都不会被编译；
+103.传引用和传指针的区别：虽然引用可以看做特殊的指针，对引用的操作会被编译器解释成对地址指向的目标的操作。但和*p这种取指针指向对象的方式不同，这种方式不会开辟临时空间存储指针指向的对象。如果指向对象很大，操作重复数很多，这个差异就会对性能有十分大的影响。
+104.PD（比例微分）与弹簧阻尼系统是有区别的，比例微分中的微分环节是目标位置与实际位置的偏差的微分，而弹簧阻尼的阻尼是直接用实际位置做微分，也就是绝对速度，这才是阻尼的真正含义，相当于一个测速反馈控制；
+105.在小狗的调试过程中，对于关节微分得到的关节速度需要做滤波，减小高频扰动；
+106.QT中的运行程序时让输出数据在terminal中输出,配置如下:首先，在编译器的左栏project  -> Run Setting选项-> Run里面勾选Run in  terminal.然后，编译器上方选择TOOL -> Options ->Environment -> General -> terminal 改为xterm -e。保存即可。
+107.当在QT中打开程序,遇到"could not decode with utf-8"问题时,可以将文件用gedit打开,然后另存为,选择编码格式为utf-8,并选择linux/unix系统即可;
+108.socket通信的select函数:一般模型如下
+	初始化 (socket,bind,listen);
+	while(1)
+	{
+	设置监听读写文件描述符 (FD_*);
+	调用 select;
+	如果是倾听套接字就绪 , 说明一个新的连接请求建立
+	{
+	建立连接 (accept);
+	加入到监听文件描述符中去 ;
+	}
+	否则说明是一个已经连接过的描述符
+	{
+	进行操作 (read 或者 write);
+	}
+	}
+109.嵌入式系统Pompano的脉冲输出与输入捕获:如果用FIFO来实现1ms定时发送与接收,那么就要用FIFO地址,一次将长时间(比如1s)的数据全部输出到输出FIFO中(或者是过1s后将输入FIFO中的数据一次性全读过来);而如果用实时补丁Xenomai,就不需要用FIFO了,直接通过实时线程每1ms将一组数据发送到制定的脉冲输出口,或每1ms直接从输入口读取一组数据;
+110.在使用pompano时,应该建实时pompano线程,并且设置run config到远程IP,这样run时就会把程序直接编译生成在到控制器上.如果在run的时候遇到问题,可能是远程生成的文件没有执行权限,可以在文件管理器中右键修改,然后在直接run config中把生成对象定位到该可执行文件上进行覆盖;
+111.通过sudo-apt-get install的软件都可以通过dpkg -l | grep ***来查找;
+112.如果在qt中出现#include <iostream>找不到的情况,可能是因为qt的build选项中"Build Enviroment "中的CPLUS_INCLUDE_PATH设置错误,可以选择unset,再尝试下;
+113.对于程序编译时候出现的问题,要仔细分析,如果是build编译阶段的问题,就要查找头文件的包含是否错误(也就是CmakeList中的Include_directories部分),如果是link链接阶段的问题,就要查找库文件包含是否错误(也就是target_link_libraries部分);
+114.对于CmakeLists文件来说,使用find_package()包含某个库时,可以试探用库的名字大小写变化,如果可行则可以编译的时候不会出错,如果不对就会出现编译错误;之后在inlcude_directories阶段,包含的头文件的名字,如${OPENCV_INCLUDE_DIRS}也要试大小写,并通过程序编译头文件是否出错来测试;最后的target_link_libraries阶段,包含的库的名称,如 ${OpenCV_LIBRARIES}也要试大小写,并通过程序链接阶段是否出错来测试.切记,如果链接库的名称携程 ${OpenCV_LIBS}也是很有可能出错的;
+115.对于某些库,安装后不能通过cmakelist的find_package()命令找到,那是因为该库的地址没有添加到CMAKE_MODULE_PATH中,因此可以通过LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules )的方式添加,即是在工作包的目录下新建一个名为cmake_modules的文件夹,在该文件夹里面新建FindName.cmake的文件,在文件中添加进去库的头文件和静态库动态库地址即可;
+116.可以在CmakeLists的include_directories()中直接添加地址,如include_directories(  "/usr/local/include/eigen3");target_link_libraries()中也可以直接添加地址;
+117.在安装kinect的插件iai_kinect2时编译出现问题,按下面操作:在kinect_registration CMakeLists.txt添加add_definitions( -fexceptions ).可以编译通过,但是仍然无法启动roslaunch kinect2_bridge kinect2_bridge.launch;
+118.当在安装某个软件时遇到类似如下问题:
+    error processing /var/cache/apt/archives/dockmanager_0.1.0~bzr83-0ubuntu1~10.10~dockers1_amd64.deb (--unpack):
+ trying to overwrite '/usr/share/dockmanager/data/skype_invisible.svg', which is also in package faenza-icon-theme 0.8
+  可以采用sudo dpkg -i --force-overwrite /var/cache/apt/archives/smplayer_0.6.9+svn3595-1ppa1~maverick1_i386.deb命令来解决;
+119.类似这样的错误：
+	dpkg: error processing /var/cache/apt/archives/AAA (–unpack):
+	trying to overwrite `/usr/lib/BBB‘, which is also in package CCC
+	dpkg-deb: subprocess paste killed by signal (Broken pipe)
+	Errors were encountered while processing:
+	AAA
+	E: Sub-process /usr/bin/dpkg returned an error code (1)
+	解决方法：
+	sudo dpkg -i --force-overwrite AAA
+	(give full path of AAA), and then run
+	sudo apt-get -f install
+	again.
+120.对于linux的命令行格式,比如形如Usage: ./Super4PCS -i input1 input2
+    [ -o overlap (0.20) ]
+    [ -d delta (5.00) ]
+    [ -n n_points (200) ]
+    [ -a norm_diff (90.000000) ]
+    [ -c max_color_diff (150.000000) ]
+    [ -t max_time_seconds (10) ]
+    [ -r result_file_name (output.obj) ]
+    [ -x (use 4pcs: false by default) ]
+   应该输入./Super4PCS -i input1 input2 -a 0.2 -d 5.00等
+121.对于cmake中的findpackage找不到包的问题,findpackage的基本原理是,在cmake机制中,每个库都带了一个Find***.cmake文件,以方便cmake查找,而cmake为了方便,自己把经常用到的库的Find***.cmake查找路径都放在CMake的模块路径（/usr/share/cmake/Modules/）,如果有一个库的Find***.cmake文件不在cmake自带的模块路径中,那么可以用SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)命令把Find***.cmake放到CMAKE_MODULE_PATH路径中,但不是放到/usr/share/cmake/Modules/中,这样一样可以使用.如果一个库没有Find***.cmake文件,可以从网上下载或者自己写.为了能正常的工作，需要把 FindLibXML++.cmake 文件放到CMake的模块路径（/usr/share/cmake/Modules/）。因为CMake还不包含它，需要在项目中指定。具体步骤:在自己的项目根目录下创建一个 cmake/Modules/ 文件夹，并且在主 CMakeLists.txt 中包含下面的代码：set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")把刚才的需要用到的CMake模块放到这个文件夹下。
+122.find_package()的工作原理:cmake首先会查看${CMAKE_MODULE_PATH} 中的所有目录，然后再查看它自己的模块目录 <CMAKE_ROOT>/share/cmake-x.y/Modules/,这个称为模板模式。再找不着,就会寻找 <Name>Config.cmake 或者 <lower-case-name>-config.cmake ，它们是假定库会安装的文件（但是目前还没有多少库会安装它们）,这个称为配置模式。
+123.super-4pcs安装时,安装1.1.3版本带pcl插件功能时,由于捆绑要安装meshlab,可以在CMakeList中把meshlab以及其他git下载注释掉,并且可以把其中要求的pcl1.8版本改为与ros-indigo匹配的1.7版本,这样就可以安装super4pcs-PCLwrapper了;
+123.super4pcs安装完后,在作为pcl插件使用时,只需要在CMakeLists中添加 target_link_libraries( super4pcs_algo libvtkFiltering.so),后面的libvtkFiltering.so是因为编译时出现
+        undefined reference to symbol '_ZN15vtkSphereSource3NewEv'
+	//usr/lib/libvtkFiltering.so.5.8: error adding symbols: DSO missing from command line
+	collect2: error: ld returned 1 exit status
+	make[2]: *** [/home/shyreckdc/catkin_ws/devel/lib/my_pcl/cloud_viewer] Error 1
+	make[1]: *** [my_pcl/CMakeFiles/cloud_viewer.dir/all] Error 2
+	make: *** [all] Error 2
+	Invoking "make -j4 -l4" failed
+   这时,按照错误中提示在target_link_libraries中添加libvtkFiltering.so就可以编译通过.
+124.安装super4pcs时,要安装1.1.3版本,把里面的CMakeLists中的demo选项去掉(不编译demo),然后把pcl的依赖改成当前的pcl版本即可;1.1.2版本的作为pcl插件的功能有问题;
+125.对于最小二乘问题,如果是线性的最小二乘问题,可以采用导数为零来求极值;如果是非线性的最小二乘,就要用非线性优化的方法(牛顿法或列文博格马尔夸特法);
+126.A为正定矩阵意味着A的各阶主子式都大于零,也就包括他的行列式必须大于零;
+127.矩阵求导与标量的求导不同;
+128.要在程序中保存时输出名字中包含变量可以这么做: std::stringstream ss;   ss << "table_scene_lms400_plane_" << i << ".pcd"; writer.write<pcl::PointXYZ> (ss.str (), *cloud_p, false);
+129.在删除某个包是,如libpcl-dev,libpcl-dev-1.7,那么应该一起写成libpcl-*,而不是libpcl*,否则会删不掉;
+130.stringstream可以用来进行类型转换,如把int或char转换成string类型:
+    std::stringstream stream;
+    std::string result;
+    int i = 1000;
+    stream << i; //将int输入流
+    stream >> result; //从stream中抽取前面插入的int值
+    std::cout << result << std::endl; // print the string "1000"
+131.在git中使用git clone时,打开一个项目的地址一般有http(使用http协议)和ssh(使用ssh协议)两种类型,可以用http地址,但这样每次都要输入用户名和密码,也可以使用ssh类型,通过设置密钥,可以不用输入密码.密钥的设置步骤为:打开个人资料设置,点击里面的ssh密钥图标,按照生成密钥的步骤进行即可;如果没有设置ssh的密钥,而去使用ssh类型进行克隆,就会出现让你不停输入密码的情况,并且出现permission denied;
+132.cuda在cmakelists使用时,原来的Add_executable()要改成CUDA_ADD_EXECUTABLE();
+133.在CMakeLists中,find_package(catkin REQUIRED COMPONENTS roscpp rosmsg rospy std_msgs PCL),这种写法是不对的,因为PCL不是catkin的子功能包,因此要单独写find_package(PCL);
+134.单独安装pcl1.8时,可以直接源码编译(可通过cmake-gui开启gpu和cuda功能),然后从ros上单独下载一个pcl_conversion安装就行,不要用sudo apt-get install ros-indigo-pcl-conversions,这样会下载libpcl1.7;
+135.安装带gpu和cuda功能的pcl1.8,从pcl官网下载pcl1.8,然后打开文件夹,运行cmake-gui配置,选择gpu和cuda,然后编译/安装即可,另外要与ros通用,要安装一个pcl-conversions;
+136.排序算法:交换法,选择法,冒泡法,快速排序法.以降序排列为例,对交换法,是依次将第i位的值与其后面的所有值挨个比较,遇到大的则交换,则确定了第i位的值;选择法与交换法类似,只是依次将第i位的值与其后面的值挨个比较,遇到大的先不交换,继续与其后面的值比较,直到找出其后面的值的最大值,然后再进行交换,这样就只需要交换一次,也就是比较次数不变,交换次数减少,可以提高排序效率;冒泡法,每次比较相邻两个值,大的在前,小的在后,执行完一遍后,小值就自动排到了最底下,总共执行n次,就可以完成n个数据的排序;快速排序法,选择第一个数,将大于这个数的数据都排在它的右边,小于它的数据都排在它的左边,然后在左右边再依次执行相同的操作,最后就可以实现排序,类似与二分的思想,由于它的交换不局限于相邻两个数,因此排序速度较快;插入排序是将数组分为两部分,有序组和无序组,如排序开始时就是把第一个数作为有序组,剩下的数作为无序组,然后依次从无序组中抽取数据在有序组中进行排序(插入到合适的位置),全部无序组都插入到有序组后,排序结束;
+137.二叉树,四叉树,八叉树,主要用于数据快速查找,它们通过对数据进行分类,建立树,可以大大提高查找的速度,二叉树用于一维数组,四叉树用于二维数组,八叉树用于三维数组;kd tree,主要用于近邻搜索,因此它建立树的方法和二叉树等不一样,它适用于任意维度,在做超片面分割时,是根据当前方差最大的维度来进行分割(即选为分割域),然后将所有数据按照此分割域进行排序,选择最中间的那个数据作为分割点;然后重复此过程,直至分割结束.
+138.关于工业摄像头的相关知识:最简单的模型是针孔模型,但实际应用来进行摄像头分析的是透镜模型,在此模型中,焦距是指所有光线经过透镜后汇聚的那一点,物距是指物体离透镜的距离,像距是指物体的成像面离透镜的距离(在已经对焦的前提下,也就是物体发出的光线经过透镜后能重新完整成像,也就是经过透镜其他位置的光线与经过光心的光线相交于一点,这也就是对焦的含义),在此情况下,1/焦距=1/物距+1/像距,这是透镜成像的基本公式.
+139.焦距,光线经过透镜后汇聚在一起的那一点,定焦镜头与变焦镜头代表的就是焦距是否可调,焦距大小直接影响的是同一物体在同一物距下在相机感光元件上的成像大小,焦距越小,视角越大,视野越大,视场越大,即是广角镜头,有缩小效果;焦距越大,视角越小,视场越小,即是放大镜(长焦镜头),有放大效果;
+140.对焦,与焦距是完全不同的两个概念,对焦是在焦距一定的情况下,让物体在成像元件上清晰成像,这就要求物体上同一点反射的光线经过透镜后能重新汇聚成一点,即是从物体上一点垂直射入透镜的光线与经过光心(透镜中心)的光线能汇聚到一点,这个点就在透镜的像距平面上,也就是要满足公式:1/焦距=1/物距+1/像距,而这里因为焦距和物距(工作平面)都是固定的,只有像距是可变的,因此对焦也就是调整像距(透镜到成像元件的距离)使得满足公式;
+141.自动对焦与手动对焦,一般相机与镜头集成在一起的比较适合做成自动对焦(因为需要电机来驱动镜头伸缩),而工业上用的一般相机和镜头是分离的,所以基本都是手动对焦.由于工业应用中,工作距离(也就是工作面)一般是固定的,因此可以根据视场大小和成像元件大小计算出焦距,选择一个定焦镜头,然后手动对焦好,固定住,以后就可以不用动了;因此在工业应用中使用自动对焦的意义不是很大;
+142.对焦后的清晰范围,对焦后的相机也不是只在对焦时的工作面才能清晰成像,在工作面的前后一定范围内都是清晰的(从人眼看来,叫做弥散圈),这个前后范围就叫做景深,因此也可以说在景深范围内都是清晰的;
+143.焦距计算,通过工作平面和视场大小,成像元件大小可以计算出焦距,工业镜头的焦距(f mm)可以根据FOV(视场), WD(工作距离) 和CCD芯片尺寸计算出来:FOV视场指被摄取物体的大小，视场的大小是以镜头至被摄取物体距离(WD)，镜头焦距(F)及CCD芯片尺寸,焦距f ＝ WD × CCD芯片尺寸( H or V) / FOV( H or V);
+用这个公式得到的焦距,实际使用由于要考虑透镜的影响,在同一块CCD上同一个物体的成像面积会比计算时设定的小一点,但由于一般物距远大于焦距(像距(也就是对焦后的透镜与成像芯片的距离)约等于焦距),因此这点影响很小;
+144.选用变焦镜头还是定焦镜头,变焦镜头由于里面有多个镜头,所以会影响进光亮,也就是光圈很难做到与定焦镜头一样,会影响成像效果,因此在一个特定的焦距上,定焦镜头的成像要好于变焦镜头;
+145.光圈,决定的是镜头的进光量,一般光圈值越小,代表进光量越多;
+146.镜头的工作距离是指镜头能使用的范围,一般来说,根据透镜的工作原理,物距在2倍焦距以外,在成像元件上是缩小效果,两倍是等大效果,两倍以内是放大效果,所以工业相机的物距一般是在两倍焦距以外.理论上说,物距不管多大,通过对焦,都应该能在成像芯片上清晰成像,因此工作距离是一个最低值到无穷大的范围.但这个最低值与焦距和畸变等因素都有关;
+147.linux内核加实时补丁为xenomai,地址http://www.xenomai.org/documentation/xenomai-2.6/html/api/group__task.html#gad5225e5fb8d583fbdfa5299f322b8366;
+
+
+

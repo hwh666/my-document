@@ -1,0 +1,102 @@
+1.点云配准主要分为correspondance(匹配)和transformation estimation(位姿估计)两部分;
+2.ICP是局部匹配的方法,需要比较多的覆盖点云;因此不管是besl还是chen的方法都需要较多的点云覆盖;
+3.1991年,besl的论文中提出了在位姿估计阶段不用SVD分解,而用四元素法的方法;
+4.1992年,Chen的论文中提出了在位姿估计阶段求解R/T时,用点面代替点点距离来建立最小二乘模型;点面距离可以使用匹配阶段匹配得不怎么好的点;但是
+5.4pcs是globle registration方法的一种;
+6.4pc算法中的找四个点的方法比找三个点的方法,4个点可以采用仿射变换中线段的比例不变的特性(刚体变换还可以采用线段长度不变来搜索),来提高匹配搜索的速度;三个点的方法的算法复杂度为n的立方,4pcs为n的平方;
+7.super 4pcs相对与经典的4pcs,算法复杂度又有下降,为n的线性,他主要是从两方面做了改进:一是在点云Q中提取匹配的4点时,用了新的方法;二是在提取到的4点对做剔除多余点对时,加入了角度的限制;
+8.在PCL中,有setInputSource和setInputTarget两个函数,其中setInputTarget中的点云是用来建立kd_tree的;
+9.<Generalized-ICP>:保留了经典ICP的绝大部分内容,只是在进行位姿估计的最小二乘的偏差函数上做了改进,改用了类似与点面法的需要考虑法向量的算法,这样就把点云的结构特征以及表面特征考虑进来了,
+  可以自动减弱匹配不好的点对位姿估计的贡献,并且保留了原有经典ICP速度优势;在这篇文章中,还提到原有的经典ICP算法可以通过增加匹配的最大距离阈值(匹配距离大于该阈值的,就认为是匹配不好的点),来消除匹配不好的点.另外这其中还采用了概率框架的MLE方法来迭代估计位姿;
+10.<Generalized-ICP>:一段话:点面模型的背后假设是,我们获取的物体点云不是随意的三维空间的点,而是带有结构的,是物体表面的点的集合.这意味这我们是在处理一个在三维空间的二维流形.既然真是世界的物体表面至少是分段可微分的,那么我们可以假定我们获得的点云数据是基本平坦的.更进一步说,因为我们采样这个流形从两个不同的视角,那么我们就不可能采样到完全一样的点.从本质上来说,每个点都提供了一个它的表面法向量方向的限制.
+11.2016年MIT-Princeton的做法:RGB-D多视角融合,然后对融合后的点云图做位姿估计;http://www.cs.princeton.edu/~andyz/apc2016;
+12.2015年第一届APC,第一名是RBO from the Technical University of Berlin,第二名MIT,第三名Grizzly from Dataspeed Inc. & Oakland University;
+13.2016年第二届APC,前三名是Delft,NimbRo Picking from the U. of Bonn,MIT-Princeton;
+14.2017年,前三名是ACRV(autralian center for robotic vision),NimbRo Picking,新加坡Nanyang理工,Mit-princeton也参加了;
+15.位姿估计新方法:Discriminatively-guided Deliberative Perception for Pose Estimation of Multiple 3D Object Instances Venkatraman Narayanan, Maxim Likhachev
+16.初始配准的算法主要有:重心重合法,主成分分析法(PCA),
+17.配准前要对点云进行下采样,采样方法有均匀网格法,曲率采样法等;
+18.<NimbRo Picking: Versatile Part Handling for Warehouse Automation>,2016年的第二名NimbRo,他们发现realsense sr300在某些角度扫描物体时会产生一些不好的效果,因此采用上下两个RGBD摄像头(另个摄像头颠倒180度),并且利用这两个摄像头的rgb做了一个深度图,然后融合这三个深度图得到最终深度图;然后在点云配准阶段,先建立物体的三维模型,然后预先定义一些物体可能出现的位姿变化矩阵,在配准时,首先用预定义的旋转去初始化点云,并把点云的重心和模型的重心重合,然后再利用generalized ICP;
+19.在<Team Delft’s Robot Winner of the Amazon Picking Challenge 2016>中,冠军队Delft提出,On the perception side, Deep Learning neural networks proved an excellent solution for object recognition, but they also are a really promising solution to pose estimation and even grasp planning, as the results of other teams suggest.
+20.2016年的冠军队Delft在论文<Team Delft’s Robot Winner of the Amazon Picking Challenge 2016>中提到,他们采用的位姿估计是用4pcs的方法;
+21.2016年的第三名MIT的论文<Multi-view Self-supervised Deep Learning for 6D Pose Estimation in the Amazon Picking Challenge>中提到,他们的位姿估计用的就是ICP的方法,但是针对性的做了一些改进,具体如下:
+   深度传感器和点云分割带来的噪声滤波:We address this issue in three steps: First, to reduce sensor noise, we eliminate spatial outliers from the segmented point cloud, by removing all point farther than a threshold from its k-nearest neighbors. Second, to reduce segmentation noise, especially on the object boundaries, we remove points that lie outside the shelf bin or tote, and those that are close to a pre-scanned background model. Finally,we further filter outlier points from each segmented group of points by finding the largest contiguous set of points along each principal axis (computed via PCA) and remove any points that are disjoint from this set.
+   点云深度不一致的滤波:3D一致平均网格法均匀滤波In a typical RGB-D point cloud, surfaces perpendicular to the sensor’s optical axis have often denser point clouds. The color of the surface changes its reflectivity on the IR spectrum, which also affects the effective point cloud density. These non-uniformities are detrimental to the ICP algorithm because it biases convergence toward denser areas. By applying a 3D uniform average grid filter to the point clouds, we are able to give them consistent distributions in 3D space.
+   初始位姿估计:PCA估计出大致的方向,重心重合估计出两坐标的位置平移,但是由于我们只能得到一部分点云,效果并不理想,因此ICP is an iterative local optimizer, and as such, it is sensitive to initialization. The principal directions of the segmented point cloud, as estimated by PCA, give us a reasonable first approximation to the orientation of objects with uneven aspect ratios. We have observed experimentally
+that the choice of initial orientation for objects with even aspect ratios has little effect on the final result of ICP.Analogously, one would use the centroid of the point cloud as the initial guess for the geometric center of the object,however we have observed that since captured point cloudsare only partial, those two centers are usually biased from each other. To address this, we push back the initial pose of the pre-scanned object back along the optical axis of the RGB-D camera by half the size of the object’s bounding box,under the naive assumption that we are only seeing “half”the object. This initialization has proven more successful in avoiding local optimums.
+   对于塑料瓶等反射点云稀少或缺失点云的物体,做法是采用RGB摄像头多视角拍摄,重建一个包围物体的凸面及其体素,然后计算凸面的位姿,Our solution leverages the multi-view segmentation to estimate a convex hull of the object by carving a 3D gridded space of voxels with the segmented RGB images. This process results in a 3D mask that encapsulates the real object. We use the convex hull of that mask to estimate the geometric center of the object and approximate its orientation (assuming that the object is axis-aligned).
+   效果评价:We have observed experimentally that these bonds of 15 ◦ and 5cm are sufficient for picking with sensor-guarded motions.
+   另外还有一个抓取选择的评价系统:按置信得分来选择抓取哪一个:Filtering failure modes by confidence score. We compute a confidence score per object pose prediction that favors high precision for low recall. Specifically, the confidence score of a pose prediction equals the mean value of confidence scores over all points belonging to the segmentation of the object.We observe that erroneous poses (especially those due to partial occlusions) more often have low confidence scores.The robot system uses this value to target only predictions with high score.We evaluate the usefulness of the confidence scores by
+recalling the output of the perception system to only consider predictions with confidence scores larger than 10% and 70% respectively (see Table II). These confidence percentages are important thresholds, because the full robot system,predictions with < 10% confidence (conf-10, at 78% recall)are ignored during planning, and prediction with > 70% confidence (conf-70, at 23% recall) trigger a pick attempt.
+22.关于程序中经常出现的depracated:pcl::PCLPointCloud2 is a ROS (Robot Operating System) message type replacing the old sensors_msgs::PointCloud2. Hence, it should only be used when interacting with ROS. (see an example here):If needed, PCL provides two functions to convert from one type to the other:
+void fromPCLPointCloud2 (const pcl::PCLPointCloud2& msg, cl::PointCloud<PointT>& cloud);  
+void toPCLPointCloud2 (const pcl::PointCloud<PointT>& cloud, pcl::PCLPointCloud2& msg);
+23.For ROS Hydro and later (if you are using ROS), PCL has done a work to remove all its dependencies from ROS. What this means is the pcl has created a set of classes which are almost identical to the corresponding ROS messages, in order to minimize API breakage for pcl users. PointCloud users using "now depracated" sensor_msgs::PointCloud2 are now asked to use pcl_conversions package, this package implements conversions from/to sensor_msgs::PointCloud2 to/from) pcl::PointCloud and should include :#include <pcl_conversions/pcl_conversions.h> 
+and the ROS code should be modified as the following :
+    void foo(const sensor_msgs::PointCloud2 &pc)  
+    {  
+      pcl::PCLPointCloud2 pcl_pc;  
+      pcl_conversions::toPCL(pc, pcl_pc);  
+      pcl::SomePCLFunction(pcl_pc);  
+      ...  
+    }  
+24.论文<基于特征点提取和匹配的点云配准算法>严剑峰,中提到:计算法向量的方法为根据一个点的k近邻找出附近的点,然后拟合出一个切平面,该平面的法向量即为所求的法向量;然后可以利用该法向量来计算该点云附近的曲率(用一个局部曲面来拟合该点附近的点云,然后用该曲面的曲率来代表该点的曲率);选取曲面上的凸点或者凹点作为特征点,然后来进行两个点云的初匹配,最后用ICP进行精匹配;
+25.在计算法向量时,对于近邻的数量k或者圆周半径r的选择,如果点云细节部分的曲率比较大,那就要选择小一点,以保留这些细节,保证能够被计算出法向量;pcl中利用pcl::NormalEstimation求出的法向量都是朝向视点viewpoint的,viewpoint默认是(0,0,0)并且能够被设置通过setViewPoint()函数;
+26.pcl还提供一个快速的法向量计算函数基于openmp,该函数可以使用多线程计算,pcl::NormalEstimationOMP;
+27.点特征直方图PFH是针对每个点的3d特征描述,给予点及其法向量;FPFH跟PFH相似,但更快;
+28.视点特征直方图VFH是包含有物体的位姿信息的,整个物体点云做成一个描述子,而不是像PFH等一个点有一个独立的描述子.可以把各个模型都做一个vfh特征描述,然后将点云的vfh与模板做对照(用kd_tree搜索)来进行物体分类;另外,因为vfh包含有物体的位姿,也可以选取多个物体位姿做成模板,然后用点云的vfh来做匹配,找出物体的位姿;
+29.点云的特征描述包括局部特征描述和全局特征描述,局部特征是点及其附近区域组成的特征,全局特征则是整个点云的.局部特征描述的方法有包括法线/PFH/FPFH/NARF等,适用于进行两幅点云间的点的匹配;全局特征描述如VFH,可以用来进行两副点云对比,看是否是同一个物体;
+30.NARF特征点是基于深度图的,可以找出图中前景物体与背景物体的交界处,也就是物体的边界,便于进行两幅点云的对应定的匹配,找到对应点对后,可以用来计算变换矩阵;
+31.对于特征点匹配来说,分两步,首先要选择关键点keypoint(如果不选择关键点,那就是要用点云所有的点作为关键点),关键点的选择方法包括:NARF，SIFT，FAST,ISS;第二步是基于得到的关键点,计算每个关键点的描述子,算法有NARF, PFH，FPFH, BRIEF 或SIFT.
+32.点云初配准的算法:
+       1.1.1投票法
+        由于刚体变换只有6个自由度，所以只要确定3对匹配点，就能计算刚体变换。在点云P和Q上分别任选一个基（3个点），计算刚体变换Ti，利用Ti平移和旋转点云，计算P和Q中重合的点的数目ki，如果ki足够大，Ti可以作为结果，否则重复以上过程。如果P中有M个点，Q中有N个点，最差的时间复杂度为O（M^3 * N^3）
+    1.1.2改进的投票法
+        在点云P中选取一个基Bi，然后在模型Q中寻找所有可以和Bi相匹配的基，计算所有刚体变换，选择一个最优的Ti，如果Ti足够好，那么作为结果，否则重复以上过程，最差时间复杂度O（M^3 * N^3）
+        小结：投票法的优点是可以忍受大量的噪声，在较小重叠情况下也能得到满意的结果。但是时间复杂度过高，对于工业界应用，不可接受。
+    1.1.3特征法
+        计算两片点云的特征，利用特征的相似性加快两片点云中基的选择，高维特征计算复杂，低维特征区分率不高。
+        特征是用来辅助匹配基的选择，由于点云对齐本质上是对点云进行平移和旋转操作，所以我们希望特征具有旋转和平移不变性，并且我们希望两片点云中非匹配点的特征是不同的，所以特征需要具备一定的区分率。
+        如PFH特征等
+另外4pcs可以看成是投票法的一种,它用4对匹配点,比3对匹配点,其搜索匹配基的速度更快;
+小结：特征法稳定性没有投票法高，如果点云噪声较大，特征不能准确计算的时候，或者当点云重叠部分较小，重叠部分缺少足够的特征点时，会导致对其失败。由于现在扫描设备获得的点云一般噪声比较小，重叠部分的多少是人工可以控制的，所以特征法比较实用。但是当点云规模达到1M或者10M级别时，由于需要计算两片点云中每个点的特征，达到实时对齐还是很困难的。
+33.两幅点云中对应点的匹配方法:
+对于点匹配（point matching， 用xyz坐标作为特征），都有如下方法：brute force matching（强制匹配）,kd-tree nearest neighbor search (FLANN)（kd树最近邻搜索）,searching in the image space of organized data（在图像空间搜索有组织的数据）,searching in the index space of organized data（按索引搜索有组织的数据）. 
+特征匹配（feature matching， 用特征做为特征），只有下面两种方法：brute force matching （强制匹配）,kd-tree nearest neighbor search (FLANN)（kd树最近邻搜索）. 
+除了搜索法，还有两种著名对应估计：
+直接估计对应关系（默认），对点云A中的每一点，搜索在B中的对应关系;
+“Reciprocal” 相互对应关系估计，只用A，B重叠部分，先从A到B找对应，再从B到A找对应。
+另外Correspondences rejection（剔除错误估计），可用 RANSAC 算法，或减少数量，只用一部分对应关系。有一种特殊的一到多对应，即模型中一个点对应源中的一堆点。这种情况可以用最短路径对应或检查附近的其他匹配过滤掉。
+34.<SIFT 算法在点云配准中的应用>一文中提出了使用SIFT关键点进行点云匹配的算法,其中提到拿到两个点云的对应点后,进行特征点匹配时间,是使用欧氏距离作为判定准则的,并且有错误点匹配点的提纯算法;另外,对于匹配后的两个点集,采用四元素法求出变换矩阵;
+35.pcl中可以将点云投影到某个平面;pcl::ModelCoefficients::Ptr,pcl::ProjectInliers,proj.setModelType,proj.setModelCoefficients;
+36.pcl中有四类滤波器:第一类叫做PassThrough filter,它可以根据点的x,y,z轴上值的大小,选择让某个区间的点保留,比如让x在0到1之间的点保留;第二种叫做StatisticalOutlierRemoval filter,它是统计每个点的k个临近点,然后计算这个点到它的这些临近点的平均距离,然后把那些距离大于平均距离n倍的点去除;第三类是RadiusOutlier removal filter,它是求每个点一定半径范围内的邻居点,如果邻居点的点数少于某个值,就作为局外点剔除;第四种算法是ConditionalRemoval filter,它与第一类有点类似,是把x,y,z中值满足(大于某个值小于某个值,小于某个值,大于某个值)等条件的点作为局内点;
+37.深度图和点云图之间是可以相互转换的,从点云到深度图比较容易,不需要相机内参,只需要设定深度相机sensor的位置,分辨率,扫描区间就可以了;而从深度图到点云,则需要相机的内参,才能计算出点云;
+38.pcl点云坐标:X（红色）Y（绿色 ）Z （蓝色）;
+39.pcl中深度图的从点云到深度图中的参数coordinate_frame,当取为camera_frame表示:x轴向右,y轴向下,z轴向前;当取为laser_frame,那么x向前,y向左,z向上;
+40.在PCL的教程中提到:model和sence的匹配有两种方法:ICP方法和feature-based registration.因为ICP算法在两幅点云有比较大的差别的时候往往匹配不准,因此一般先用特征法做初匹配,再用ICP做精确匹配;
+41.点云的精确匹配方法除了ICP之外,还有一种方法叫NDT(normal distributions transform),来源于论文<Biber P,Strasser W. The normal distributions transform:a new approach to laser scan matching[ C]∥Proceedingsofthe 2003 IEEE / RJS International Conference on Intelli-gent Robots and Systems, 2003: 2743-2748>,在<结合 NARF 特征的改进型 3D-NDT 多视点云配准>胡修祥/张良的论文中也要提到,NDT适合需要算法运算速度快 、 精度高,尤其适合处理大数据量点云;但不管是ICP还是NDT,都需要比较好的初匹配;
+42.随机抽样一致算法RANSAC:要求有先有一个预定的参数化模型,比如一个平面ax+by+cz=d;然后通过RANSAC来求这几个参数a,b,c,d;在PCL中,预制了几个参数化模型:
+     pcl::SampleConsensusModelCircle2D: A 2D circle on the X-Y plane.
+    pcl::SampleConsensusModelCircle3D: A 3D circle (any plane).
+    pcl::SampleConsensusModelCone: A cone.
+    pcl::SampleConsensusModelCylinder: A cylinder.
+    pcl::SampleConsensusModelLine: A line.
+    pcl::SampleConsensusModelPlane: A plane.
+    pcl::SampleConsensusModelSphere: A sphere.
+    pcl::SampleConsensusModelStick: A stick (a line with user-given minimum/maximum width).
+43.点云分割segmentation,PCL中提供了很多点云分割的方法:如Euclidean距离分割,带条件conditional的Euclidean距离分割,区域生长region growing,基于颜色的分割color-based,最小分割min-cut,基于RANSAC的模型的如平面,圆柱体分割等,可以利用这些分割来把物体的背景,如桌面/地面等分割出来;
+44.PCL中法向量的计算可以采用深度图计算的方法,速度比较快,Integral images的方法;
+45.PCL中深度图的标示为:the points that are closer to the camera would be violet, while the points near the maximum sensor range would be red.越近的是紫色,越远的是红色;
+46.pcl中的descriptor分为两类,一类是local descriptor,另一类是globle descriptor,local是给点云集合中的每一个点都单独计算一个描述子,而globle是把整个点云看成整体,计算一个描述子.局部描述子通常用于查找keypoints,而全局描述子可以用于物体识别等,但是需要物体的点云是完整的,否则得到的点云无法和模板点云匹配;局部描述子可以扩展为全局描述子,只要局部描述子在选择邻域半径的时候选择得足够大(能够把点云所有的点都包括进去);
+47.pcl中对点云的处理主要有这么几类:点云滤波,点云重采样,点云分割,物体识别,物体的配准,
+48.在3d-image-pipeline中,如果是用local descriptor,对于keypoints的descriptor匹配后,还有一个correspondance grouping阶段,这个阶段主要是剔除误匹配的点,一般用的方法有:随机抽样一致法,GC(Geometric consistency)法,3D Hough Transform法,这个阶段一般都会计算出变换矩阵,如果觉得有必要再进行更精确地计算,可以再加上后面这个absolute orientation过程;absolute orientation阶段是根据correspondance grouping后得到的匹配点,计算变换矩阵,使用的是pcl里面的sample_consensus算法;如果使用globle descriptor,就要先对scene进行分割,得到分割后的点云后,在进行描述子的计算,因为全局描述子是对整块点云进行的.不管是local还是globle流程,最后都有一个hypothesis verification阶段,这个阶段是对前面获得的变换矩阵,以及scene点云,判断到底有多少点是与model点云能够匹配的,然后定出一个比例(局内点和局外点),少于阈值就认为是错误的.
+49.两幅点云如果拼接在一起,重叠的部分点云密度大,可以采用降采样来平均;
+50.在目标识别object recognition中,既可以是用全局描述子,也可以使用局部描述子,不管用哪个,都先要建立数据集,也就是先建立模型.对于全局描述子,应该对模型从每隔n度的角度拍一张照片(带有变换矩阵信息),然后对每张照片计算描述子(一般是CRH描述子),因为全局描述子是有视点信息的,所有不同的角度拍的同一个模型产生的描述子是不同的,后续匹配的时候,得到匹配的模型后,把里面的变换矩阵信息提取出来就可以了;如果是用局部描述子,那么需要先把物体做三维重建,得到一个完整的模型的点云信息,然后再计算描述子(针对关键点),后续匹配后,还需要进行correspondance grouping阶段和absolute orientation阶段才能得到变换矩阵;
+51.可用MeshLab从三维模型中得到ply格式点云;后者用pcl里面的pcl_mesh2pcd <input.ply> <output.pcd>命令将ply转成pcd,Blender can export to ASCII PLY, but I have sometimes encountered a processing error with those). 另外pcl_virtual_scanner <input.ply>可以模拟一个kinnect等对模型进行多视点拍照,得到从不同角度看到的多张pcd照片;
+52.pcl里面要把一个pointNormal的点云转成一个pointxyz的点云,必须把pointxyz点云设置大小和pointNormal一样,  cloud_in_cor->resize(cloud_in->size());
+53.pcl里面用keypoint的描述子做初始匹配的求位姿部分的方法有三种:sample_consensus_prerejective, pcl::SampleConsensusModelRegistration,pcl::SampleConsensusInitialAlignment;这三个类都会给出一个最优的匹配变换矩阵和分数;
+54.pcl里面的RANSAC算法可以用来提取平面,这样假设点云中有一个物体放在桌子上,那么可以用RANSAC提取平面找到桌子后,再在它上面提取点云,而把离桌面远的点都去掉,而只保留桌面上的东西;
+55.对于全局描述子来说,全局描述子如VFH/CVFH等都是与视点无关的,也就是不能反应物体的旋转,因此如果要求出物体的旋转,必须附加使用CRH描述子;
+56.pcl里面的局部匹配的流程总结来说是:提取关键点,计算关键点的描述子,匹配,匹配分组(correspondance grouping,按照刚性变换中两点距离不变来剔除错误的匹配点,然后计算变换矩阵,可能是很多个),计算变换矩阵(absolute orientation:可对前面计算的变换矩阵再计算一次,用pcl里面的sample_consensus算法);全局匹配的流程总结:点云分割,计算描述子,匹配描述子,配准(用CRH来计算变换矩阵);不管是局部匹配还是全局匹配,最后都可以加上后处理过程,依次为ICP和假想确认(hypothesis verification:从前面得到的变换矩阵里选取最优的一个);
+57.pcl中的点云映射到一个平面的作用:当要提取一个平面模型的凸凹多边形时,先用SANSAC平面模板来分割出平面,然后将其他所有的点映射到该平面上,然后再求该平面的凹凸多边形边界;
+58.点云匹配中做初匹配时,需要用到全局配准的方法,有两种方法:特征点法或者4pcs法,这两种方法都是对整个点云进行搜索匹配,其中特征点法是依靠描述子的匹配来匹配对应点,而4pcs是依靠搜索所以对应的四点匹配,当然两种方法都可以用刚性旋转不变性来去除一些错误的匹配点,从效果上看,对于点云缺失比较多的场景,4pcs法有更好的效果;另外,在做初匹配之前,对两幅点云进行重心重合,是很有必要的,可以提高初匹配的效果;

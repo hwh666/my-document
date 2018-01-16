@@ -1,0 +1,4 @@
+1.PCL中的registration的解读:correspondence方法的选择,是通过设定correspondence_estimation_为不同的类型来实现的,函数是setCorrespondenceEstimation();
+  而transformation求解方法的选择,是通过设定transformation_estimation_为不同的类型来实现的,函数是setTransformationEstimation();
+2.1991年,besl的论文中提出了不用SVD分解,而用四元素法的方法;
+3.1992年,Chen的论文中提出了在求解R/T时,用点面代替点点距离来建立最小二乘模型;

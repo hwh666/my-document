@@ -1,0 +1,19 @@
+1.A structure representing RGB color information.
+
+The RGBA information is available either as separate r, g, b, or as a packed uint32_t rgba value. To pack it, use:
+int rgb = ((int)r) << 16 | ((int)g) << 8 | ((int)b);
+
+To unpack it use:
+int rgb = ...;
+uint8_t r = (rgb >> 16) & 0x0000ff;
+uint8_t g = (rgb >> 8)  & 0x0000ff;
+uint8_t b = (rgb)     & 0x0000ff;
+2. PointXYZRGBA或PointXYZRGB格式的点，内部赋值：
+ 假如输入是三通道的深度图和8U的RGB图：
+        p.x = double(depth.ptr<uchar>(m)[n*3]);
+        p.y = double(depth.ptr<uchar>(m)[n*3+1]);
+        p.z = double(depth.ptr<uchar>(m)[n*3+2]);
+        p.b = rgb.ptr<uchar>(m)[n*3];
+        p.g = rgb.ptr<uchar>(m)[n*3+1];
+        p.r = rgb.ptr<uchar>(m)[n*3+2];
+3.如果需要从点云中恢复原RGB图片，则需要在存储点云的时候选择有序点云，也就是点云的width和height与RGB的一致；而数据存储模式用ASCII或者二进制都行。
